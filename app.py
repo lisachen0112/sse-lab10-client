@@ -22,7 +22,7 @@ def get_books():
 
         # Filter books based on the specified genre
         if genre:
-            filtered_books = [book for book in books if 'dystopian' in book['genre'].lower()]
+            filtered_books = [book for book in books if genre.lower() in book['genre'].lower()]
             return jsonify({"books": filtered_books})
         else:
             return jsonify({"books": books[2]})
