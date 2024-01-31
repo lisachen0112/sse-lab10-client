@@ -1,33 +1,34 @@
-from flask import Flask, jsonify, request
+from flask import Flask, render_template, jsonify, request
 import os
 import requests
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET'])
-def get_books():
-    # URL of the first service
-    server_url = os.environ.get('SERVER_URL')
+@app.route('/', methods=['GET', 'POST'])
+def search_books():
+    if request.method == 'POST':
+        # Get the user's input from the form
+        author = request.form.get('author')
+        title = request.form.get('title')
+        genre = request.form.get('genre')
 
-    # Make a request to the first service
-    response = requests.get(server_url)
+        # URL of the server 
+        server_url = os.environ.get('SERVER_URL', "http://books-api.c4c5a9dkepczcvd7.uksouth.azurecontainer.io:5000/" 
+)
 
-    # Check if the request was successful (status code 200)
-    if response.status_code == 200:
-        # Extract books data from the response
-        books = response.json()["books"]
-
-        # Get the genre parameter from the query string
-        genre = request.args.get('genre')
-
-        # Filter books based on the specified genre
-        if genre:
-            filtered_books = [book for book in books if genre.lower() in book['genre'].lower()]
-            return jsonify({"books": filtered_books})
+        # Make a request to the server with the provided filters
+        response = requests.get(server_url, params={'author': author, 'title': title, 'genre': genre})
+        
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            # Extract books data from the response
+            books = response.json()["books"]
+            return books
         else:
-            return jsonify({"books": books[2]})
+            return jsonify({"error": "Failed to retrieve books from the server"}), 500
     else:
-        return jsonify({"error": "Failed to retrieve books from the first service"}), 500
+        # Render the initial HTML page with the search form
+        return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
