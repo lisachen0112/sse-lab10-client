@@ -13,8 +13,7 @@ def search_books():
         genre = request.form.get('genre')
 
         # URL of the server 
-        server_url = os.environ.get('SERVER_URL', "http://books-api.c4c5a9dkepczcvd7.uksouth.azurecontainer.io:5000/" 
-)
+        server_url = os.environ.get('SERVER_URL')
 
         # Make a request to the server with the provided filters
         response = requests.get(server_url, params={'author': author, 'title': title, 'genre': genre})
